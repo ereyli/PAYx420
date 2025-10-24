@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { wrapFetchWithPayment } from 'x402-fetch';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
@@ -19,31 +18,24 @@ app.use(cors({
 
 app.use(express.json());
 
-// Initialize x402 with MetaMask/Private Key
-let fetchWithPayment: typeof fetch;
+// Initialize Wallet
+let walletAddress: string;
 
-async function initializeX402() {
+async function initializeWallet() {
   try {
-    // Option 1: Use private key (MetaMask private key)
-    const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
-    
-    // Option 2: Use CDP Wallet (if available)
-    // const cdp = new CdpClient({
-    //   apiKeyId: process.env.CDP_API_KEY_ID!,
-    //   apiKeySecret: process.env.CDP_API_KEY_SECRET!,
-    // });
-    // const cdpAccount = await cdp.evm.createAccount({
-    //   walletSecret: process.env.CDP_WALLET_SECRET!,
-    // });
-    // const account = toAccount(cdpAccount);
-    
-    fetchWithPayment = wrapFetchWithPayment(fetch, account);
-    
-    console.log('✅ x402 initialized with MetaMask Wallet');
-    console.log(`📍 Wallet Address: ${account.address}`);
+    if (process.env.PRIVATE_KEY) {
+      const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
+      walletAddress = account.address;
+      console.log('✅ Wallet initialized with MetaMask Private Key');
+      console.log(`📍 Wallet Address: ${walletAddress}`);
+    } else {
+      console.log('⚠️  No private key provided - running in demo mode');
+      walletAddress = '0x0000000000000000000000000000000000000000';
+    }
   } catch (error) {
-    console.error('❌ Failed to initialize x402:', error);
-    process.exit(1);
+    console.error('❌ Failed to initialize wallet:', error);
+    console.log('⚠️  Running in demo mode');
+    walletAddress = '0x0000000000000000000000000000000000000000';
   }
 }
 
@@ -57,38 +49,24 @@ app.get('/health', (req, res) => {
   });
 });
 
-// x402 Payment Endpoint
-app.post('/api/payment', async (req, res) => {
-  try {
-    const { url, method = 'GET', body } = req.body;
-    
-    if (!url) {
-      return res.status(400).json({ error: 'URL is required' });
+// PAY402 Token Info Endpoint
+app.get('/api/pay402-info', (req, res) => {
+  res.json({
+    name: 'PAY402 Token Service',
+    description: 'Mint PAY402 tokens with USDC payments',
+    version: '2.0.0',
+    wallet: walletAddress,
+    endpoints: {
+      mint: 'POST /seller/api/mint-pay402',
+      price: 'GET /seller/api/pay402-price',
+      info: 'GET /seller/api/pay402-info'
+    },
+    pricing: {
+      rate: '1 USDC = 10,000 PAY402',
+      min: '$0.1',
+      max: '$1000'
     }
-
-    const response = await fetchWithPayment(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    const data = await response.json();
-    
-    res.json({
-      success: true,
-      data,
-      status: response.status,
-      headers: Object.fromEntries(response.headers.entries()),
-    });
-  } catch (error) {
-    console.error('Payment error:', error);
-    res.status(500).json({
-      error: 'Payment failed',
-      message: error instanceof Error ? error.message : 'Unknown error',
-    });
-  }
+  });
 });
 
 // Service Discovery (x402 Bazaar)
@@ -132,22 +110,27 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Start server
 async function startServer() {
-  await initializeX402();
+  await initializeWallet();
   
   const port = process.env.PORT || 3001;
   
   app.listen(port, () => {
-    console.log('🚀 PAY402 x402 Backend Server');
+    console.log('🚀 PAY402 Backend Server');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Server running on port ${port}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔗 Protocol: x402 (MetaMask)`);
-    console.log(`💰 MetaMask Wallet: Connected`);
+    console.log(`🔗 Protocol: PAY402 Token Service`);
+    console.log(`💰 Wallet: ${walletAddress}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📖 API Endpoints:');
-    console.log(`   POST /api/payment     - Make x402 payments`);
+    console.log(`   GET  /api/pay402-info - PAY402 service info`);
     console.log(`   GET  /api/services    - Discover services`);
     console.log(`   GET  /health          - Health check`);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📖 Seller Endpoints:');
+    console.log(`   POST /seller/api/mint-pay402 - Mint PAY402 tokens`);
+    console.log(`   GET  /seller/api/pay402-price - Get PAY402 price`);
+    console.log(`   GET  /seller/api/pay402-info  - Seller info`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   });
 }

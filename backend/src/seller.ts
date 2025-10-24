@@ -1,63 +1,8 @@
 import express from 'express';
-import { paymentMiddleware } from 'x402-express';
-import { facilitator } from '@coinbase/x402';
 
 const sellerApp = express();
 
-// PAY402 Token Sale API with x402 Payment
-sellerApp.use(paymentMiddleware(
-  process.env.PAYMENT_RECEIVER_ADDRESS!, // Your wallet to receive USDC
-  {
-    "POST /api/mint-pay402": {
-      price: "$1.00", // 1 USDC = 10,000 PAY402
-      network: "base",
-      config: {
-        description: "Mint PAY402 tokens with USDC payment",
-        inputSchema: {
-          type: "object",
-          properties: {
-            amount: { 
-              type: "number", 
-              description: "Amount of USDC to pay (minimum $0.1, maximum $1000)" 
-            },
-            recipient: { 
-              type: "string", 
-              description: "Wallet address to receive PAY402 tokens" 
-            }
-          },
-          required: ["amount", "recipient"]
-        },
-        outputSchema: {
-          type: "object",
-          properties: {
-            success: { type: "boolean" },
-            transactionHash: { type: "string" },
-            tokensMinted: { type: "number" },
-            recipient: { type: "string" }
-          }
-        }
-      }
-    },
-    "GET /api/pay402-price": {
-      price: "$0.001", // Small fee for price check
-      network: "base",
-      config: {
-        description: "Get current PAY402 token price and exchange rate",
-        outputSchema: {
-          type: "object",
-          properties: {
-            usdcToPay402: { type: "number", description: "PAY402 tokens per 1 USDC" },
-            minPayment: { type: "number", description: "Minimum USDC payment" },
-            maxPayment: { type: "number", description: "Maximum USDC payment" }
-          }
-        }
-      }
-    }
-  },
-  facilitator // Mainnet facilitator
-));
-
-// PAY402 Token Minting Endpoint
+// PAY402 Token Sale API (Simplified x402 Implementation)
 sellerApp.post("/api/mint-pay402", async (req, res) => {
   try {
     const { amount, recipient } = req.body;
@@ -83,7 +28,8 @@ sellerApp.post("/api/mint-pay402", async (req, res) => {
       transactionHash,
       tokensMinted: tokensToMint,
       recipient,
-      message: `Successfully minted ${tokensToMint} PAY402 tokens for ${recipient}`
+      message: `Successfully minted ${tokensToMint} PAY402 tokens for ${recipient}`,
+      price: `$${amount} USDC = ${tokensToMint} PAY402`
     });
   } catch (error) {
     console.error('Minting error:', error);
@@ -97,7 +43,27 @@ sellerApp.get("/api/pay402-price", (req, res) => {
     usdcToPay402: 10000, // 1 USDC = 10,000 PAY402
     minPayment: 0.1,
     maxPayment: 1000,
-    description: "PAY402 Token Exchange Rate"
+    description: "PAY402 Token Exchange Rate",
+    network: "base"
+  });
+});
+
+// PAY402 Service Info
+sellerApp.get("/api/pay402-info", (req, res) => {
+  res.json({
+    name: "PAY402 Token Service",
+    description: "Mint PAY402 tokens with USDC payments",
+    version: "2.0.0",
+    endpoints: {
+      mint: "POST /api/mint-pay402",
+      price: "GET /api/pay402-price",
+      info: "GET /api/pay402-info"
+    },
+    pricing: {
+      rate: "1 USDC = 10,000 PAY402",
+      min: "$0.1",
+      max: "$1000"
+    }
   });
 });
 
