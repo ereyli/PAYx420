@@ -15,7 +15,9 @@
     "ethers": "^6.12.0",
     "axios": "^1.7.2",
     "framer-motion": "^11.0.0",
-    "lucide-react": "^0.460.0"
+    "lucide-react": "^0.460.0",
+    "x402-fetch": "^0.6.6",
+    "@coinbase/x402": "^0.6.6"
   },
   "devDependencies": {
     "@types/node": "^20",

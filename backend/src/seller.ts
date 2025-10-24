@@ -1,4 +1,6 @@
 import express from 'express';
+import { paymentMiddleware } from 'x402-express';
+import { facilitator } from '@coinbase/x402';
 
 const sellerApp = express();
 
