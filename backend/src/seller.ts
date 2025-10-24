@@ -5,16 +5,11 @@ import { facilitator } from '@coinbase/x402';
 const sellerApp = express();
 
 // x402 middleware configuration
-const x402Config = {
-  facilitator: facilitator,
-  currency: 'USDC',
-  chain: 'base',
-  receiver: process.env.PAYMENT_RECEIVER_ADDRESS || '0x0000000000000000000000000000000000000000'
-};
+const receiverAddress = (process.env.PAYMENT_RECEIVER_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`;
 
 // PAY402 Token Sale API (Real x402 Implementation with middleware)
 sellerApp.post("/api/mint-pay402", 
-  paymentMiddleware(x402Config),
+  paymentMiddleware(receiverAddress, { amount: 'amount', currency: 'USDC' }),
   async (req, res) => {
     try {
       const { amount, recipient } = req.body;

@@ -141,7 +141,7 @@ async function startServer() {
   const port = process.env.PORT || 3001;
   
   app.listen(port, () => {
-    console.log('🚀 PAY402 Backend Server');
+    console.log('🚀 PAY402 Backend Server v2.1.0');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Server running on port ${port}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
