@@ -1,0 +1,21 @@
+{
+  "name": "pump402-contracts",
+  "version": "1.0.0",
+  "description": "x402 Protocol Meme Token Smart Contracts on Base",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js --network base",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+    "verify": "hardhat verify --network base"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5"
+  }
+}
+

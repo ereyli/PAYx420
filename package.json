@@ -1,0 +1,37 @@
+{
+  "name": "pump402",
+  "version": "1.0.0",
+  "description": "x402 Protocol Meme Token Launchpad on Base",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install -ws",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build:contracts": "npm run compile --workspace=contracts",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:all": "npm run build:contracts && npm run build:backend && npm run build:frontend",
+    "deploy:contracts": "npm run deploy --workspace=contracts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/pump402"
+  },
+  "keywords": [
+    "x402",
+    "http-402",
+    "payment-protocol",
+    "meme-token",
+    "base",
+    "web3",
+    "cryptocurrency"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
+
