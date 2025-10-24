@@ -91,7 +91,9 @@ app.get('/api/stats', (req, res) => {
     price: '$0.0006',
     volume24h: '$50,000',
     network: 'base',
-    contract: '0x563046d32d27Ce0335a443c6f98C0B45b49F4ddB'
+    contract: '0x563046d32d27Ce0335a443c6f98C0B45b49F4ddB',
+    timestamp: Date.now(),
+    version: '2.1.0'
   });
 });
 
