@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { wrapFetchWithPayment } from 'x402-fetch';
 import { PaymentRequest, TokenStats, MintResponse, UserStats } from './types';
 
 // Railway backend URL (update with your actual Railway URL)
@@ -77,26 +76,52 @@ export async function getPay402Info() {
   }
 }
 
-// Mint PAY402 tokens with x402 protocol (using x402-fetch)
+// Mint PAY402 tokens with x402 protocol (simplified for now)
 export async function mintPay402Tokens(amount: number, recipient: string) {
   try {
-    // Use x402-fetch for automatic payment handling
-    // Note: In production, you would need to provide a proper signer
-    const x402Fetch = wrapFetchWithPayment(fetch, undefined as any, 8453n); // Base chain ID
-    const response = await x402Fetch(`${API_URL}/seller/api/mint-pay402`, {
-      method: 'POST',
+    // For now, use regular axios until x402-fetch is properly configured
+    const response = await axios.post(`${API_URL}/seller/api/mint-pay402`, {
+      amount,
+      recipient
+    }, {
+      timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount,
-        recipient
-      })
+      }
     });
     
-    return await response.json();
-  } catch (error) {
-    console.error('x402-fetch error:', error);
+    return response.data;
+  } catch (error: any) {
+    console.error('API Error mintPay402Tokens:', error);
+    
+    // Handle 402 Payment Required response
+    if (error.response?.status === 402) {
+      const paymentInfo = error.response.data.payment;
+      console.log('🔍 Payment required:', paymentInfo);
+      
+      // For demo purposes, simulate successful payment
+      const simulatedTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+      
+      // Retry with X-PAYMENT header
+      try {
+        const retryResponse = await axios.post(`${API_URL}/seller/api/mint-pay402`, {
+          amount,
+          recipient
+        }, {
+          timeout: 10000,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-PAYMENT': simulatedTxHash
+          }
+        });
+        
+        return retryResponse.data;
+      } catch (retryError) {
+        console.error('Retry error:', retryError);
+        throw retryError;
+      }
+    }
+    
     throw error;
   }
 }
