@@ -52,7 +52,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Start server
 app.listen(config.port, () => {
-  console.log('🚀 PUMP402 Backend Server');
+  console.log('🚀 PAY402 Backend Server');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(`✅ Server running on port ${config.port}`);
   console.log(`🌍 Environment: ${config.nodeEnv}`);
