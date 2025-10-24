@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { x402Fetch } from 'x402-fetch';
+import { wrapFetchWithPayment } from 'x402-fetch';
 import { PaymentRequest, TokenStats, MintResponse, UserStats } from './types';
 
 // Railway backend URL (update with your actual Railway URL)
@@ -81,6 +81,8 @@ export async function getPay402Info() {
 export async function mintPay402Tokens(amount: number, recipient: string) {
   try {
     // Use x402-fetch for automatic payment handling
+    // Note: In production, you would need to provide a proper signer
+    const x402Fetch = wrapFetchWithPayment(fetch, undefined as any, 8453n); // Base chain ID
     const response = await x402Fetch(`${API_URL}/seller/api/mint-pay402`, {
       method: 'POST',
       headers: {
