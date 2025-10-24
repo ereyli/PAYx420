@@ -5,6 +5,7 @@ import { wrapFetchWithPayment } from 'x402-fetch';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { base } from 'viem/chains';
+import sellerApp from './seller';
 
 dotenv.config();
 
@@ -108,6 +109,9 @@ app.get('/api/services', async (req, res) => {
     res.status(500).json({ error: 'Failed to discover services' });
   }
 });
+
+// x402 Seller Routes (PAY402 Token Sales)
+app.use('/seller', sellerApp);
 
 // 404 handler
 app.use((req, res) => {
