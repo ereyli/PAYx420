@@ -2,8 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { wrapFetchWithPayment } from 'x402-fetch';
-import { CdpClient } from '@coinbase/cdp-sdk';
-import { toAccount } from 'viem/accounts';
+import { createWalletClient, http } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { base } from 'viem/chains';
 
 dotenv.config();
 
@@ -17,24 +18,28 @@ app.use(cors({
 
 app.use(express.json());
 
-// Initialize x402 with CDP Wallet
+// Initialize x402 with MetaMask/Private Key
 let fetchWithPayment: typeof fetch;
 
 async function initializeX402() {
   try {
-    const cdp = new CdpClient({
-      apiKeyId: process.env.CDP_API_KEY_ID!,
-      apiKeySecret: process.env.CDP_API_KEY_SECRET!,
-    });
+    // Option 1: Use private key (MetaMask private key)
+    const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
     
-    const cdpAccount = await cdp.evm.createAccount({
-      walletSecret: process.env.CDP_WALLET_SECRET!,
-    });
+    // Option 2: Use CDP Wallet (if available)
+    // const cdp = new CdpClient({
+    //   apiKeyId: process.env.CDP_API_KEY_ID!,
+    //   apiKeySecret: process.env.CDP_API_KEY_SECRET!,
+    // });
+    // const cdpAccount = await cdp.evm.createAccount({
+    //   walletSecret: process.env.CDP_WALLET_SECRET!,
+    // });
+    // const account = toAccount(cdpAccount);
     
-    const account = toAccount(cdpAccount);
     fetchWithPayment = wrapFetchWithPayment(fetch, account);
     
-    console.log('✅ x402 initialized with CDP Wallet');
+    console.log('✅ x402 initialized with MetaMask Wallet');
+    console.log(`📍 Wallet Address: ${account.address}`);
   } catch (error) {
     console.error('❌ Failed to initialize x402:', error);
     process.exit(1);
@@ -132,8 +137,8 @@ async function startServer() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Server running on port ${port}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔗 Protocol: x402 (Coinbase)`);
-    console.log(`💰 CDP Wallet: Connected`);
+    console.log(`🔗 Protocol: x402 (MetaMask)`);
+    console.log(`💰 MetaMask Wallet: Connected`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📖 API Endpoints:');
     console.log(`   POST /api/payment     - Make x402 payments`);
