@@ -24,14 +24,7 @@ export default function Home() {
       setStats(data);
     } catch (error) {
       console.error('Failed to load stats:', error);
-      // Set demo stats if API fails
-      setStats({
-        totalSupply: 2100000000,
-        totalMinted: 0,
-        totalBurned: 0,
-        holders: 0,
-        transactions: 0
-      });
+      // Don't set demo stats, let it fail
     } finally {
       setLoading(false);
     }

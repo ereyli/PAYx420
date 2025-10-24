@@ -45,38 +45,17 @@ export default function Pay402Service() {
 
   const loadData = async () => {
     try {
+      console.log('Loading PAY402 data from backend...');
       const [infoData, priceData] = await Promise.all([
         getPay402Info(),
         getPay402Price()
       ]);
+      console.log('Backend data loaded successfully:', { infoData, priceData });
       setInfo(infoData);
       setPrice(priceData);
     } catch (error) {
-      console.error('Error loading PAY402 data:', error);
-      // Set demo data if API fails
-      setInfo({
-        name: 'PAY402 Token Service',
-        description: 'Mint PAY402 tokens with USDC payments',
-        version: '2.0.0',
-        wallet: '0x0000000000000000000000000000000000000000',
-        endpoints: {
-          mint: 'POST /seller/api/mint-pay402',
-          price: 'GET /seller/api/pay402-price',
-          info: 'GET /seller/api/pay402-info'
-        },
-        pricing: {
-          rate: '1 USDC = 10,000 PAY402',
-          min: '$0.1',
-          max: '$1000'
-        }
-      });
-      setPrice({
-        usdcToPay402: 10000,
-        minPayment: 0.1,
-        maxPayment: 1000,
-        description: 'PAY402 Token Exchange Rate',
-        network: 'base'
-      });
+      console.error('Backend API failed:', error);
+      throw error; // Re-throw error instead of using demo data
     } finally {
       setLoading(false);
     }
@@ -95,15 +74,7 @@ export default function Pay402Service() {
       setMintResult(result);
     } catch (error) {
       console.error('Error minting tokens:', error);
-      // Show demo result if API fails
-      setMintResult({
-        success: true,
-        transactionHash: `0x${Math.random().toString(16).substr(2, 64)}`,
-        tokensMinted: Math.floor(formData.amount * 10000),
-        recipient: formData.recipient,
-        message: `Successfully minted ${Math.floor(formData.amount * 10000)} PAY402 tokens for ${formData.recipient}`,
-        price: `$${formData.amount} USDC = ${Math.floor(formData.amount * 10000)} PAY402`
-      });
+      alert('Error minting tokens: ' + (error as Error).message);
     } finally {
       setMinting(false);
     }

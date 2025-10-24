@@ -62,8 +62,18 @@ export async function getUserStats(address: string): Promise<UserStats> {
 
 // Get PAY402 service info
 export async function getPay402Info() {
-  const response = await axios.get(`${API_URL}/api/pay402-info`);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_URL}/api/pay402-info`, {
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API Error getPay402Info:', error);
+    throw error;
+  }
 }
 
 // Mint PAY402 tokens
@@ -77,8 +87,18 @@ export async function mintPay402Tokens(amount: number, recipient: string) {
 
 // Get PAY402 price info
 export async function getPay402Price() {
-  const response = await axios.get(`${API_URL}/seller/api/pay402-price`);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_URL}/seller/api/pay402-price`, {
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API Error getPay402Price:', error);
+    throw error;
+  }
 }
 
 // Get PAY402 seller info
