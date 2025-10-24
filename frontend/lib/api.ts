@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { PaymentRequest, TokenStats, MintResponse, UserStats } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Railway backend URL (update with your actual Railway URL)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://pay402-backend-production.up.railway.app';
 
 /**
  * Get payment request (402 response)
@@ -53,5 +54,36 @@ export async function getStats(): Promise<TokenStats> {
 export async function getUserStats(address: string): Promise<UserStats> {
   const response = await axios.get(`${API_URL}/api/stats/${address}`);
   return response.data.userStats;
+}
+
+/**
+ * PAY402 Token Service API
+ */
+
+// Get PAY402 service info
+export async function getPay402Info() {
+  const response = await axios.get(`${API_URL}/api/pay402-info`);
+  return response.data;
+}
+
+// Mint PAY402 tokens
+export async function mintPay402Tokens(amount: number, recipient: string) {
+  const response = await axios.post(`${API_URL}/seller/api/mint-pay402`, {
+    amount,
+    recipient
+  });
+  return response.data;
+}
+
+// Get PAY402 price info
+export async function getPay402Price() {
+  const response = await axios.get(`${API_URL}/seller/api/pay402-price`);
+  return response.data;
+}
+
+// Get PAY402 seller info
+export async function getPay402SellerInfo() {
+  const response = await axios.get(`${API_URL}/seller/api/pay402-info`);
+  return response.data;
 }
 

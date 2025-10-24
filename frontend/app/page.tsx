@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Coins, Zap, Globe, Shield, TrendingUp, Rocket } from 'lucide-react';
-import MintCard from '@/components/MintCard';
+import { Zap, Globe, Shield, TrendingUp, Rocket } from 'lucide-react';
 import Stats from '@/components/Stats';
+import Pay402Service from '@/components/Pay402Service';
 import { getStats } from '@/lib/api';
 import { TokenStats } from '@/lib/types';
 
@@ -24,6 +24,14 @@ export default function Home() {
       setStats(data);
     } catch (error) {
       console.error('Failed to load stats:', error);
+      // Set demo stats if API fails
+      setStats({
+        totalSupply: 2100000000,
+        totalMinted: 0,
+        totalBurned: 0,
+        holders: 0,
+        transactions: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -104,19 +112,9 @@ export default function Home() {
         </div>
       )}
 
-      {/* Mint Section */}
+      {/* PAY402 Service Section */}
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <Coins className="w-16 h-16 text-yellow-500 mx-auto mb-4 animate-spin-slow" />
-            <h3 className="text-3xl font-bold mb-2">Mint PAY402 Tokens</h3>
-            <p className="text-gray-400">
-              Pay 1 USDC = Get 10,000 PAY402 tokens
-            </p>
-          </div>
-
-          <MintCard onMintSuccess={loadStats} />
-        </div>
+        <Pay402Service />
       </div>
 
       {/* x402 Explanation */}
