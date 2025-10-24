@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { x402Fetch } from 'x402-fetch';
 import { PaymentRequest, TokenStats, MintResponse, UserStats } from './types';
 
 // Railway backend URL (update with your actual Railway URL)
@@ -76,23 +77,26 @@ export async function getPay402Info() {
   }
 }
 
-// Mint PAY402 tokens with x402 protocol
-export async function mintPay402Tokens(amount: number, recipient: string, paymentTxHash?: string) {
-  const headers: any = {
-    'Content-Type': 'application/json',
-  };
-  
-  // Add X-PAYMENT header if payment transaction hash is provided
-  if (paymentTxHash) {
-    headers['X-PAYMENT'] = paymentTxHash;
+// Mint PAY402 tokens with x402 protocol (using x402-fetch)
+export async function mintPay402Tokens(amount: number, recipient: string) {
+  try {
+    // Use x402-fetch for automatic payment handling
+    const response = await x402Fetch(`${API_URL}/seller/api/mint-pay402`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount,
+        recipient
+      })
+    });
+    
+    return await response.json();
+  } catch (error) {
+    console.error('x402-fetch error:', error);
+    throw error;
   }
-  
-  const response = await axios.post(`${API_URL}/seller/api/mint-pay402`, {
-    amount,
-    recipient
-  }, { headers });
-  
-  return response.data;
 }
 
 // Get PAY402 price info

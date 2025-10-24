@@ -70,34 +70,12 @@ export default function Pay402Service() {
 
     setMinting(true);
     try {
-      // First attempt without payment (should get 402 response)
+      // x402-fetch automatically handles HTTP 402 responses and payments
       const result = await mintPay402Tokens(formData.amount, formData.recipient);
       setMintResult(result);
     } catch (error: any) {
       console.error('Error minting tokens:', error);
-      
-      // Check if it's a 402 Payment Required response
-      if (error.response?.status === 402) {
-        const paymentInfo = error.response.data.payment;
-        console.log('🔍 Payment required:', paymentInfo);
-        
-        // Show payment information to user
-        alert(`Payment Required!\n\nAmount: ${paymentInfo.amount} ${paymentInfo.currency}\nPay to: ${paymentInfo.payTo}\nReason: ${paymentInfo.reason}\n\nPlease send USDC to the address above and try again with transaction hash.`);
-        
-        // For demo purposes, simulate a payment transaction hash
-        const simulatedTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
-        
-        // Retry with payment hash
-        try {
-          const result = await mintPay402Tokens(formData.amount, formData.recipient, simulatedTxHash);
-          setMintResult(result);
-        } catch (retryError) {
-          console.error('Error with payment:', retryError);
-          alert('Error with payment: ' + (retryError as Error).message);
-        }
-      } else {
-        alert('Error minting tokens: ' + (error as Error).message);
-      }
+      alert('Error minting tokens: ' + (error as Error).message);
     } finally {
       setMinting(false);
     }

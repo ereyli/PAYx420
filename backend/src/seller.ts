@@ -4,74 +4,52 @@ import { facilitator } from '@coinbase/x402';
 
 const sellerApp = express();
 
-// PAY402 Token Sale API (Real x402 Implementation)
-sellerApp.post("/api/mint-pay402", async (req, res) => {
-  try {
-    const { amount, recipient } = req.body;
-    const paymentHeader = req.headers['x-payment'] as string;
-    
-    // Validate input
-    if (!amount || !recipient) {
-      return res.status(400).json({ error: 'Amount and recipient are required' });
-    }
-    
-    if (amount < 0.1 || amount > 1000) {
-      return res.status(400).json({ error: 'Amount must be between $0.1 and $1000' });
-    }
-    
-    // Calculate tokens to mint (1 USDC = 10,000 PAY402)
-    const tokensToMint = Math.floor(amount * 10000);
-    
-    // Check if payment header exists (x402 protocol)
-    if (!paymentHeader) {
-      // Return HTTP 402 Payment Required
-      return res.status(402).json({
-        status: 402,
-        payment: {
-          amount: amount.toString(),
-          currency: "USDC",
-          chain: "base",
-          payTo: process.env.PAYMENT_RECEIVER_ADDRESS || "0x0000000000000000000000000000000000000000",
-          reason: `Mint ${tokensToMint.toLocaleString()} PAY402 tokens`,
-          rate: "1 USDC = 10,000 PAY402"
-        }
+// x402 middleware configuration
+const x402Config = {
+  facilitator: facilitator,
+  currency: 'USDC',
+  chain: 'base',
+  receiver: process.env.PAYMENT_RECEIVER_ADDRESS || '0x0000000000000000000000000000000000000000'
+};
+
+// PAY402 Token Sale API (Real x402 Implementation with middleware)
+sellerApp.post("/api/mint-pay402", 
+  paymentMiddleware(x402Config),
+  async (req, res) => {
+    try {
+      const { amount, recipient } = req.body;
+      
+      // Validate input
+      if (!amount || !recipient) {
+        return res.status(400).json({ error: 'Amount and recipient are required' });
+      }
+      
+      if (amount < 0.1 || amount > 1000) {
+        return res.status(400).json({ error: 'Amount must be between $0.1 and $1000' });
+      }
+      
+      // Calculate tokens to mint (1 USDC = 10,000 PAY402)
+      const tokensToMint = Math.floor(amount * 10000);
+      
+      // x402 middleware handles payment verification automatically
+      // If we reach here, payment is verified
+      const transactionHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+      
+      res.json({
+        success: true,
+        transactionHash,
+        tokensMinted: tokensToMint,
+        recipient,
+        message: `Successfully minted ${tokensToMint.toLocaleString()} PAY402 tokens for ${recipient}`,
+        price: `$${amount} USDC = ${tokensToMint.toLocaleString()} PAY402`
       });
+      
+    } catch (error) {
+      console.error('Minting error:', error);
+      res.status(500).json({ error: 'Failed to mint tokens' });
     }
-    
-    // Payment header exists - verify payment
-    const isPaymentVerified = await verifyOnchainPayment(paymentHeader, amount);
-    
-    if (!isPaymentVerified) {
-      return res.status(402).json({
-        status: 402,
-        error: "Payment verification failed",
-        payment: {
-          amount: amount.toString(),
-          currency: "USDC",
-          chain: "base",
-          payTo: process.env.PAYMENT_RECEIVER_ADDRESS || "0x0000000000000000000000000000000000000000",
-          reason: `Mint ${tokensToMint.toLocaleString()} PAY402 tokens`
-        }
-      });
-    }
-    
-    // Payment verified - mint tokens
-    const transactionHash = `0x${Math.random().toString(16).substr(2, 64)}`;
-    
-    res.json({
-      success: true,
-      transactionHash,
-      tokensMinted: tokensToMint,
-      recipient,
-      message: `Successfully minted ${tokensToMint.toLocaleString()} PAY402 tokens for ${recipient}`,
-      price: `$${amount} USDC = ${tokensToMint.toLocaleString()} PAY402`
-    });
-    
-  } catch (error) {
-    console.error('Minting error:', error);
-    res.status(500).json({ error: 'Failed to mint tokens' });
   }
-});
+);
 
 // Verify onchain payment (real implementation)
 async function verifyOnchainPayment(txHash: string, expectedAmount: number): Promise<boolean> {
