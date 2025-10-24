@@ -76,12 +76,22 @@ export async function getPay402Info() {
   }
 }
 
-// Mint PAY402 tokens
-export async function mintPay402Tokens(amount: number, recipient: string) {
+// Mint PAY402 tokens with x402 protocol
+export async function mintPay402Tokens(amount: number, recipient: string, paymentTxHash?: string) {
+  const headers: any = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Add X-PAYMENT header if payment transaction hash is provided
+  if (paymentTxHash) {
+    headers['X-PAYMENT'] = paymentTxHash;
+  }
+  
   const response = await axios.post(`${API_URL}/seller/api/mint-pay402`, {
     amount,
     recipient
-  });
+  }, { headers });
+  
   return response.data;
 }
 

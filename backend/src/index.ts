@@ -51,12 +51,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-// PAY402 Token Info Endpoint
+// PAY402 Token Info Endpoint (x402 compliant)
 app.get('/api/pay402-info', (req, res) => {
   res.json({
     name: 'PAY402 Token Service',
-    description: 'Mint PAY402 tokens with USDC payments',
+    description: 'Mint PAY402 tokens with USDC payments using x402 protocol',
     version: '2.0.0',
+    protocol: 'x402',
     wallet: walletAddress,
     endpoints: {
       mint: 'POST /seller/api/mint-pay402',
@@ -67,6 +68,12 @@ app.get('/api/pay402-info', (req, res) => {
       rate: '1 USDC = 10,000 PAY402',
       min: '$0.1',
       max: '$1000'
+    },
+    x402: {
+      statusCode: 402,
+      header: 'X-PAYMENT',
+      currency: 'USDC',
+      chain: 'base'
     }
   });
 });
