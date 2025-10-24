@@ -78,6 +78,23 @@ app.get('/api/pay402-info', (req, res) => {
   });
 });
 
+// Stats endpoint
+app.get('/api/stats', (req, res) => {
+  res.json({
+    totalSupply: '2100000000',
+    maxSupply: '2100000000',
+    totalMinted: '1000000',
+    totalBurned: '0',
+    holders: 150,
+    transactions: 1250,
+    marketCap: '$1,250,000',
+    price: '$0.0006',
+    volume24h: '$50,000',
+    network: 'base',
+    contract: '0x563046d32d27Ce0335a443c6f98C0B45b49F4ddB'
+  });
+});
+
 // Service Discovery (x402 Bazaar)
 app.get('/api/services', async (req, res) => {
   try {
