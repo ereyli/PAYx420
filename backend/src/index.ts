@@ -57,7 +57,7 @@ app.listen(config.port, () => {
   console.log(`✅ Server running on port ${config.port}`);
   console.log(`🌍 Environment: ${config.nodeEnv}`);
   console.log(`🔗 Base RPC: ${config.baseRpcUrl}`);
-  console.log(`💰 PUMP Token: ${config.pumpTokenAddress || 'NOT SET'}`);
+  console.log(`💰 PAY402 Token: ${config.pay402TokenAddress || 'NOT SET'}`);
   console.log(`🏦 Facilitator: ${config.facilitatorAddress || 'NOT SET'}`);
   console.log(`💵 USDC Token: ${config.usdcAddress}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
