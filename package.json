@@ -1,11 +1,11 @@
 {
-  "name": "pay402-backend",
-  "version": "1.0.5",
-  "description": "x402 Payment Protocol Backend for PAY402 Token",
+  "name": "pay402-x402-backend",
+  "version": "2.0.0",
+  "description": "PAY402 Backend with x402 Protocol Integration",
   "main": "dist/index.js",
   "scripts": {
     "dev": "cd backend && tsx watch src/index.ts",
-    "prebuild": "echo 'Building PAY402 Backend v1.0.5...'",
+    "prebuild": "echo 'Building PAY402 x402 Backend v2.0.0...'",
     "build": "cd backend && npm install && npm run build",
     "start": "cd backend && npm start",
     "test": "cd backend && npm test"
